@@ -27,14 +27,34 @@ public class BeverageMachine {
         this.beverageDao = BeverageDao.getInstance();
     }
 
+    /**
+     * Refill the provided ingredient
+     *
+     * @param ingredientName the ingredient name
+     * @param refillQuantity the quantity to refill
+     */
     public void refillIngredient(String ingredientName, int refillQuantity) {
         ingredientDao.refill(ingredientName, refillQuantity);
     }
 
+    /**
+     * Add beverage
+     *
+     * @param beverageName the beverage name
+     * @param ingredients a map of ingredient and the corresponding quantity required to prepare the beverage
+     */
     public void addBeverage(String beverageName, Map<String, Integer> ingredients) {
         beverageDao.save(beverageName, ingredients);
     }
 
+    /**
+     * Serve beverage via any of the available outlet.
+     * Using executor service to restrict the number of beverage served at a same time (additional requests are queued)
+     *
+     * @param beverageName the beverage name
+     * @return the future object to track the progress of beverage preparation
+     * @throws BeverageNotFoundException when the beverage name does not exist
+     */
     public Future<Void> serveBeverage(String beverageName) throws BeverageNotFoundException {
         Optional<Beverage> beverageOptional = beverageDao.findByName(beverageName);
         if (!beverageOptional.isPresent()) {
@@ -57,6 +77,11 @@ public class BeverageMachine {
         });
     }
 
+    /**
+     * Gracefully shutdown the beverage machine
+     *
+     * @throws InterruptedException if interrupted while waiting
+     */
     public void shutdown() throws InterruptedException {
         outletExecutor.shutdown();
         if (!outletExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
