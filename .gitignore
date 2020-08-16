@@ -41,11 +41,9 @@ Thumbs.db
 
 # Gradle Files #
 ################
-gradle/
 .gradle
 .m2
-gradlew
-gradlew.bat
+
 # Build output directies
 target/
 build/
